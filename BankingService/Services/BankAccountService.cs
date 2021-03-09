@@ -27,10 +27,6 @@ namespace BankingService.Services
 
         public async Task<Result> CreateAccount(BankAccount newAccount)
         {
-            if(newAccount.ClientID < 1)
-            {
-                return Result.Fail(HttpStatusCode.BadRequest, "ID cannot be 0 or lower");
-            }
             if (BankAccountExists(newAccount.ClientID))
             {
                 return Result.Fail(HttpStatusCode.BadRequest, "Account already exists");
