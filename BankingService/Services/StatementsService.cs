@@ -119,7 +119,7 @@ namespace BankingService.Services
                 return Result.Fail<Statement>(result.StatusCode, result.Error);
             }
 
-            _context.Statement.Remove(result.Value);
+            //_context.Statement.Remove(result.Value);
             try
             {
                 await _context.SaveChangesAsync();

@@ -11,10 +11,11 @@ namespace BankingService.Models.Contexts
     {
         public BankAccountsContext(DbContextOptions<BankAccountsContext> options) : base(options)
         {
+            Database.EnsureCreated();
         }
 
         public DbSet<BankAccount> BankAccounts { get; set; }
 
-        public DbSet<Statement> Statement { get; set; }
+        //public DbSet<Statement> Statement { get; set; }
     }
 }
