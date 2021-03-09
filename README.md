@@ -1,6 +1,6 @@
 # BankingServiceCRUD
 
-CRUD for banking tracking banking account and its statements
+CRUD for tracking banking accounts and its statements
 
 After cloning/downloading:
 
