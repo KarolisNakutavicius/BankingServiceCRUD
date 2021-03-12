@@ -14,8 +14,18 @@ namespace BankingService.Models.Contexts
             Database.EnsureCreated();
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BankAccount>().Property(ba => ba.ClientID).ValueGeneratedNever();
+            modelBuilder.Entity<Statement>().Property(ba => ba.StatementID).ValueGeneratedNever();
+
+            modelBuilder.Entity<BankAccount>()
+                .HasMany(b => b.Statements)
+                .WithOne();
+        }
+
         public DbSet<BankAccount> BankAccounts { get; set; }
 
-        //public DbSet<Statement> Statement { get; set; }
+        public DbSet<Statement> Statements { get; set; }
     }
 }

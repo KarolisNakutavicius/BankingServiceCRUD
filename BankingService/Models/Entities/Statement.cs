@@ -12,5 +12,6 @@ namespace BankingService.Models.Entities
         //public string Transactor { get; set; }
         public float Amount { get; set; }
         //public DateTime DateTime { get; set; }
+
     }
 }

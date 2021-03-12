@@ -32,9 +32,10 @@ namespace BankingService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<BankAccountsContext>(opt => opt.UseInMemoryDatabase("BankAccoutsList"));
-            services.AddControllers().AddJsonOptions(opts =>
+            services.AddControllers().AddNewtonsoftJson(x =>
             {
-                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                x.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
 
             services.AddSwaggerGen(c =>
