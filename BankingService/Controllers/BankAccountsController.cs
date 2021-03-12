@@ -33,7 +33,7 @@ namespace BankingService.Controllers
                 return new JsonResult(result) { StatusCode = (int)result.StatusCode };
             }
 
-            return CreatedAtAction("CreateBankAccount", new { id = bankAccount.ClientID }, bankAccount);
+            return CreatedAtAction("GetBankAccount", new { id = bankAccount.ClientID }, bankAccount);
         }
 
         [HttpGet]
