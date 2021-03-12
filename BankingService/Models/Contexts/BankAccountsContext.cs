@@ -10,9 +10,7 @@ namespace BankingService.Models.Contexts
     public class BankAccountsContext : DbContext
     {
         public BankAccountsContext(DbContextOptions<BankAccountsContext> options) : base(options)
-        {
-            Database.EnsureCreated();
-        }
+        {}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,7 +23,6 @@ namespace BankingService.Models.Contexts
         }
 
         public DbSet<BankAccount> BankAccounts { get; set; }
-
         public DbSet<Statement> Statements { get; set; }
     }
 }
