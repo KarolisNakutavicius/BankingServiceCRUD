@@ -1,5 +1,6 @@
 ﻿using BankingService.Functional;
 using BankingService.Models.Contexts;
+using BankingService.Models.DTOs;
 using BankingService.Models.Entities;
 using BankingService.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -40,13 +41,11 @@ namespace BankingService.Services
             {
                 var updatedAccount = result.Value;
                 updatedAccount.Statements.Add(newStatement);
-                await _accountService.UpdateAccount(accountID, updatedAccount);
-                //(await _context.BankAccounts.FindAsync(accountID)).Statements.Add(newStatement);
-                //await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
-            catch
+            catch(Exception ex)
             {
-                return Result.Fail(HttpStatusCode.InternalServerError, "Unexpected server error while saving a new statement");
+                return Result.Fail(HttpStatusCode.InternalServerError, $"Unexpected server error while saving a new statement - {ex.Message}");
             }
 
             return Result.Ok();
@@ -83,28 +82,25 @@ namespace BankingService.Services
             return Result.Ok(statement);
         }
 
-        public async Task<Result> UpdateStatement(int accountID, int statementID, Statement updatedStatement)
+        public async Task<Result> UpdateStatement(int accountID, int statementID, EditStatementDto updatedStatement)
         {
-            if (statementID != updatedStatement.StatementID)
-            {
-                return Result.Fail(HttpStatusCode.BadRequest, "Statement IDs are not the same");
-            }
-
-            var result = await GetStatement(accountID, statementID);
-
-            if (!result.Success)
-            {
-                return Result.Fail<Statement>(result.StatusCode, result.Error);
-            }
-
             try
             {
-                _context.Entry(updatedStatement).State = EntityState.Modified;
+                var statement = await _context.Statements.FindAsync(statementID);
+
+                if(statement == null)
+                {
+                    Result.Fail(HttpStatusCode.BadRequest, "Statement with specified ID could not be found");
+                }
+
+                statement.OperationType = updatedStatement.OperationType;
+                statement.Amount = updatedStatement.Amount;
+
                 await _context.SaveChangesAsync();
             }
-            catch
+            catch(Exception ex)
             {
-                return Result.Fail(HttpStatusCode.InternalServerError, "Unexpected server error while updating a statement");
+                return Result.Fail(HttpStatusCode.InternalServerError, $"Unexpected server error while updating a statement - {ex.Message}");
             }
 
             return Result.Ok();
@@ -119,7 +115,7 @@ namespace BankingService.Services
                 return Result.Fail<Statement>(result.StatusCode, result.Error);
             }
 
-            //_context.Statement.Remove(result.Value);
+            _context.Statements.Remove(result.Value);
             try
             {
                 await _context.SaveChangesAsync();

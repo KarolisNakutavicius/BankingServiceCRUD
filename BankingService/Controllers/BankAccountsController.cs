@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using BankingService.Models.Contexts;
 using BankingService.Models.Entities;
 using BankingService.Services.Contracts;
+using BankingService.Models.DTOs;
 
 namespace BankingService.Controllers
 {
@@ -32,7 +33,7 @@ namespace BankingService.Controllers
                 return new JsonResult(result) { StatusCode = (int)result.StatusCode };
             }
 
-            return CreatedAtAction("CreateBankAccount", new { id = bankAccount.ClientID }, bankAccount);
+            return CreatedAtAction("GetBankAccount", new { id = bankAccount.ClientID }, bankAccount);
         }
 
         [HttpGet]
@@ -55,7 +56,7 @@ namespace BankingService.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBankAccount(int id, BankAccount updatedAccount)
+        public async Task<IActionResult> PutBankAccount(int id, EditBankAccountDto updatedAccount)
         {
             var result = await _bankAccountService.UpdateAccount(id, updatedAccount);
 

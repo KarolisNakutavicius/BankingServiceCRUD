@@ -1,4 +1,5 @@
 ﻿using BankingService.Functional;
+using BankingService.Models.DTOs;
 using BankingService.Models.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace BankingService.Services.Contracts
         Task<Result> CreateStatement(int accountID, Statement newStatement);
         Task<Result<IEnumerable<Statement>>> GetStatements(int accountID);
         Task<Result<Statement>> GetStatement(int accountID, int statementID);
-        Task<Result> UpdateStatement(int accountID, int statementID, Statement updatedStatement);
+        Task<Result> UpdateStatement(int accountID, int statementID, EditStatementDto updatedStatement);
         Task<Result> DeleteStatement(int accountID, int statementID);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BankingService.Functional;
 using BankingService.Models.Contexts;
+using BankingService.Models.DTOs;
 using BankingService.Models.Entities;
 using BankingService.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -68,12 +69,14 @@ namespace BankingService.Services
             return Result.Ok(bankAccount);
         }
 
-        public async Task<Result> UpdateAccount(int id, BankAccount updatedAccount)
+        public async Task<Result> UpdateAccount(int id, EditBankAccountDto newAccount)
         {
-            if (id != updatedAccount.ClientID)
+            var updatedAccount = new BankAccount()
             {
-                return Result.Fail(HttpStatusCode.BadRequest, "Account IDs does not match");
-            }
+                ClientID = id,
+                AccountName = newAccount.AccountName,
+                Statements = newAccount.Statements
+            };
 
             try
             {

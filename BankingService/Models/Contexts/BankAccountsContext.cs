@@ -10,12 +10,19 @@ namespace BankingService.Models.Contexts
     public class BankAccountsContext : DbContext
     {
         public BankAccountsContext(DbContextOptions<BankAccountsContext> options) : base(options)
+        {}
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            Database.EnsureCreated();
+            modelBuilder.Entity<BankAccount>().Property(ba => ba.ClientID).ValueGeneratedNever();
+            modelBuilder.Entity<Statement>().Property(ba => ba.StatementID).ValueGeneratedNever();
+
+            modelBuilder.Entity<BankAccount>()
+                .HasMany(b => b.Statements)
+                .WithOne();
         }
 
         public DbSet<BankAccount> BankAccounts { get; set; }
-
-        //public DbSet<Statement> Statement { get; set; }
+        public DbSet<Statement> Statements { get; set; }
     }
 }
