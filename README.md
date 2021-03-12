@@ -11,4 +11,4 @@ docker build -t name .
 docker run -p 80:80 name
 
 
-Open 'localhost/swagger' to manipulate data
+Open `localhost/swagger` in a browser to manipulate data
