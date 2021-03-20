@@ -23,47 +23,7 @@ namespace BankingService.Services
             _accountService = accountService;
         }
 
-        public async Task<Result> CreateStatement(int accountID, Statement newStatement)
-        {
-            var result = await _accountService.GetAccount(accountID);
-
-            if (!result.Success)
-            {
-                return Result.Fail<IEnumerable<Statement>>(result.StatusCode, result.Error);
-            }
-
-            if(result.Value.Statements?.Any(s => s.StatementID == newStatement.StatementID) == true)
-            {
-                return Result.Fail(HttpStatusCode.BadRequest, "Statement already exist");
-            }
-
-            try
-            {
-                var updatedAccount = result.Value;
-                updatedAccount.Statements.Add(newStatement);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception ex)
-            {
-                return Result.Fail(HttpStatusCode.InternalServerError, $"Unexpected server error while saving a new statement - {ex.Message}");
-            }
-
-            return Result.Ok();
-        }
-
-        public async Task<Result<IEnumerable<Statement>>> GetStatements(int accountID)
-        {
-            var result = await _accountService.GetAccount(accountID);
-
-            if(!result.Success)
-            {
-                return Result.Fail<IEnumerable<Statement>>(result.StatusCode, result.Error);
-            }
-
-            return Result.Ok<IEnumerable<Statement>>(result.Value.Statements);
-        }
-
-        public async Task<Result<Statement>> GetStatement(int accountID, int statementID)
+        public async Task<Result<Statement>> CreateStatement(int accountID, StatementDTO statement)
         {
             var result = await _accountService.GetAccount(accountID);
 
@@ -72,30 +32,81 @@ namespace BankingService.Services
                 return Result.Fail<Statement>(result.StatusCode, result.Error);
             }
 
-            var statement = result.Value.Statements?.FirstOrDefault(s => s.StatementID == statementID);
-
-            if(statement == null)
+            var newStatement = new Statement
             {
-                return Result.Fail<Statement>(HttpStatusCode.NotFound, "Statement with specified ID was not found");
+                Amount = statement.Amount,
+                OperationType = statement.OperationType,
+                Transactor = statement.Transactor,
+                Date = statement.Date,
+                BankAccount = result.Value
+            };
+
+            try
+            {
+                _context.Statements.Add(newStatement);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                return Result.Fail<Statement>(HttpStatusCode.InternalServerError, $"Unexpected server error while saving a new statement - {ex.Message}");
+            }
+
+            return Result.Ok(newStatement);
+        }
+
+        public async Task<Result<IEnumerable<Statement>>> GetStatements(int accountID)
+        {
+            var statements = (await _context.BankAccounts.Include(b => b.Statements).FirstOrDefaultAsync(b => b.ClientID == accountID))?.Statements;
+
+            if (statements == null)
+            {
+                return Result.Fail<IEnumerable<Statement>>(HttpStatusCode.BadRequest, "Account was not found");
+            }
+
+            return Result.Ok<IEnumerable<Statement>>(statements);
+        }
+
+        public async Task<Result<Statement>> GetStatement(int accountID, int statementID)
+        {
+            var statements = (await _context.BankAccounts.Include(b => b.Statements).FirstOrDefaultAsync(b => b.ClientID == accountID))?.Statements;
+
+            if (statements == null)
+            {
+                return Result.Fail<Statement>(HttpStatusCode.BadRequest, "Account was not found");
+            }
+
+            var statement = statements.FirstOrDefault(s => s.StatementID == statementID);
+
+            if (statement == null)
+            {
+                return Result.Fail<Statement>(HttpStatusCode.BadRequest, "Statement with specified ID was not found");
             }
 
             return Result.Ok(statement);
         }
 
-        public async Task<Result> UpdateStatement(int accountID, int statementID, EditStatementDto updatedStatement)
+        public async Task<Result> UpdateStatement(int accountID, int statementID, StatementDTO updatedStatement)
         {
+            var result = await _accountService.GetAccount(accountID);
+
+            if (!result.Success)
+            {
+                return Result.Fail<Statement>(result.StatusCode, result.Error);
+            }
+
+            var statement = new Statement
+            {
+                StatementID = statementID,
+                Amount = updatedStatement.Amount,
+                OperationType = updatedStatement.OperationType,
+                Transactor = updatedStatement.Transactor,
+                Date = updatedStatement.Date,
+                BankAccount = result.Value
+            };
+
             try
             {
-                var statement = await _context.Statements.FindAsync(statementID);
-
-                if(statement == null)
-                {
-                    Result.Fail(HttpStatusCode.BadRequest, "Statement with specified ID could not be found");
-                }
-
-                statement.OperationType = updatedStatement.OperationType;
-                statement.Amount = updatedStatement.Amount;
-
+                _context.Entry(statement).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch(Exception ex)
@@ -115,9 +126,9 @@ namespace BankingService.Services
                 return Result.Fail<Statement>(result.StatusCode, result.Error);
             }
 
-            _context.Statements.Remove(result.Value);
             try
             {
+                _context.Statements.Remove(result.Value);
                 await _context.SaveChangesAsync();
             }
             catch
