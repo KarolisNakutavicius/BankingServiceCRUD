@@ -14,6 +14,7 @@ namespace BankingService.Models.Entities
         public float Amount { get; set; }
         public DateTime Date { get; set; }
 
+        public int BankAccountID { get; set; }
         public BankAccount BankAccount { get; set; }
     }
 }
