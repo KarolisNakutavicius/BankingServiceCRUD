@@ -90,7 +90,7 @@ namespace BankingService.Services
             {
                 if (!BankAccountExists(id))
                 {
-                    return Result.Fail(HttpStatusCode.BadRequest, "Account was not found");
+                    return Result.Fail(HttpStatusCode.NotFound, "Account was not found");
                 }
                 else
                 {

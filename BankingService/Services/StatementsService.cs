@@ -60,7 +60,7 @@ namespace BankingService.Services
 
             if (statements == null)
             {
-                return Result.Fail<IEnumerable<Statement>>(HttpStatusCode.BadRequest, "Account was not found");
+                return Result.Fail<IEnumerable<Statement>>(HttpStatusCode.NotFound, "Account was not found");
             }
 
             return Result.Ok<IEnumerable<Statement>>(statements);
@@ -72,14 +72,14 @@ namespace BankingService.Services
 
             if (statements == null)
             {
-                return Result.Fail<Statement>(HttpStatusCode.BadRequest, "Account was not found");
+                return Result.Fail<Statement>(HttpStatusCode.NotFound, "Account was not found");
             }
 
             var statement = statements.FirstOrDefault(s => s.StatementID == statementID);
 
             if (statement == null)
             {
-                return Result.Fail<Statement>(HttpStatusCode.BadRequest, "Statement with specified ID was not found");
+                return Result.Fail<Statement>(HttpStatusCode.NotFound, "Statement with specified ID was not found");
             }
 
             return Result.Ok(statement);

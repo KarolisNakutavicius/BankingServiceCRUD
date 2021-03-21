@@ -11,7 +11,7 @@ namespace BankingService.ViewModels
         public OperationEnum OperationType { get; set; }
         public string Transactor { get; set; }
         public float Amount { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public StatementViewModel(Statement statement)
         {
@@ -19,7 +19,7 @@ namespace BankingService.ViewModels
             OperationType = statement.OperationType;
             Transactor = statement.Transactor;
             Amount = statement.Amount;
-            Date = statement.Date;
+            Date = statement.Date.ToString();
         }
     }
 }
