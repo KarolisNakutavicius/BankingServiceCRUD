@@ -8,6 +8,7 @@ namespace BankingService.Models.Entities
         [Key]
         public int ClientID { get; set; }
         public string AccountName { get; set; }
+        public string IBAN { get; set; }
         public IList<Statement> Statements { get; set; }
     }
 }

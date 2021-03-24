@@ -10,9 +10,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:latest AS build
 WORKDIR /src
-COPY . "BankingService/"
+COPY "./BankingService" "BankingService/"
 RUN dotnet restore "BankingService/BankingService.csproj"
-COPY . .
 WORKDIR "/src/BankingService"
 RUN dotnet build "BankingService.csproj" -c Release -o /app/build
 

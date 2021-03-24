@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace BankingService.Models.DTOs
 {
-    public class EditStatementDto
+    public class StatementDTO
     {
         public OperationEnum OperationType { get; set; }
         public float Amount { get; set; }
+        public string Transactor { get; set; }
+        public DateTime Date { get; set; }
     }
 }

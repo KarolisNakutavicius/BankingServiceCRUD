@@ -1,8 +1,10 @@
-﻿using BankingService.Functional;
+﻿using BankingService.Enums;
+using BankingService.Functional;
 using BankingService.Models.Contexts;
 using BankingService.Models.DTOs;
 using BankingService.Models.Entities;
 using BankingService.Services.Contracts;
+using BankingService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,28 +25,29 @@ namespace BankingService.Services
 
         public async Task<ActionResult<IEnumerable<BankAccount>>> GetAccounts()
         {
-            return await _context.BankAccounts.Include(ba => ba.Statements).ToListAsync();
+            return await _context.BankAccounts.ToListAsync();
         }
 
-        public async Task<Result> CreateAccount(BankAccount newAccount)
+        public async Task<Result<BankAccount>> CreateAccount(BankAccountDTO account)
         {
-            if (BankAccountExists(newAccount.ClientID))
+            var newAccount = new BankAccount()
             {
-                return Result.Fail(HttpStatusCode.BadRequest, "Account already exists");
-            }
+                AccountName = account.AccountName,
+                IBAN = account.IBAN
+            };
 
             _context.BankAccounts.Add(newAccount);
-            //_context.BankAccounts.Wh
+
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                return Result.Fail(HttpStatusCode.InternalServerError, "Unexpected server error while saving new account");
+                return Result.Fail<BankAccount>(HttpStatusCode.InternalServerError, "Unexpected server error while saving new account");
             }
 
-            return Result.Ok();
+            return Result.Ok(newAccount);
 
         }
 
@@ -54,7 +57,7 @@ namespace BankingService.Services
 
             try
             {
-                bankAccount = await _context.BankAccounts.Include(ba => ba.Statements).FirstOrDefaultAsync(ba => ba.ClientID == id);
+                bankAccount = await _context.BankAccounts.FirstOrDefaultAsync(ba => ba.ClientID == id);
             }
             catch
             {
@@ -69,31 +72,25 @@ namespace BankingService.Services
             return Result.Ok(bankAccount);
         }
 
-        public async Task<Result> UpdateAccount(int id, EditBankAccountDto newAccount)
+        public async Task<Result> UpdateAccount(int id, BankAccountDTO newAccount)
         {
             var updatedAccount = new BankAccount()
             {
                 ClientID = id,
                 AccountName = newAccount.AccountName,
-                Statements = newAccount.Statements
+                IBAN = newAccount.IBAN
             };
 
             try
             {
                 _context.Entry(updatedAccount).State = EntityState.Modified;
-
-                foreach (var statment in updatedAccount.Statements)
-                {
-                    _context.Entry(statment).State = EntityState.Modified;
-                }
-
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!BankAccountExists(id))
                 {
-                    return Result.Fail(HttpStatusCode.BadRequest, "Account was not found");
+                    return Result.Fail(HttpStatusCode.NotFound, "Account was not found");
                 }
                 else
                 {
@@ -106,16 +103,25 @@ namespace BankingService.Services
 
         public async Task<Result> DeleteAccount(int id)
         {
-            var result = await GetAccount(id);
-
-            if(!result.Success)
-            {
-                return result;
-            }    
+            BankAccount bankAccount = null;
 
             try
             {
-                _context.BankAccounts.Remove(result.Value);
+                bankAccount = await _context.BankAccounts.FirstOrDefaultAsync(ba => ba.ClientID == id);
+            }
+            catch
+            {
+                //account was not found 
+            }
+
+            if (bankAccount == null)
+            {
+                return Result.Fail<BankAccountViewModel>(HttpStatusCode.NotFound, "Bank account was not found");
+            }
+
+            try
+            {
+                _context.BankAccounts.Remove(bankAccount);
                 await _context.SaveChangesAsync();
             }
             catch

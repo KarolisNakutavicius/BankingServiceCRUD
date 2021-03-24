@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace BankingService.Models.DTOs
 {
-    public class EditBankAccountDto
+    public class BankAccountDTO
     {
         public string AccountName { get; set; }
-        public IList<Statement> Statements { get; set; }
+
+        public string IBAN { get; set; }
     }
 }

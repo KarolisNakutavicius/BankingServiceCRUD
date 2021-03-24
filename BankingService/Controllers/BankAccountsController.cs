@@ -9,6 +9,7 @@ using BankingService.Models.Contexts;
 using BankingService.Models.Entities;
 using BankingService.Services.Contracts;
 using BankingService.Models.DTOs;
+using BankingService.ViewModels;
 
 namespace BankingService.Controllers
 {
@@ -24,7 +25,7 @@ namespace BankingService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BankAccount>> CreateBankAccount(BankAccount bankAccount)
+        public async Task<ActionResult<BankAccountViewModel>> CreateBankAccount(BankAccountDTO bankAccount)
         {
             var result = await _bankAccountService.CreateAccount(bankAccount);
 
@@ -33,17 +34,17 @@ namespace BankingService.Controllers
                 return new JsonResult(result) { StatusCode = (int)result.StatusCode };
             }
 
-            return CreatedAtAction("GetBankAccount", new { id = bankAccount.ClientID }, bankAccount);
+            return CreatedAtAction("GetBankAccount", new { id = result.Value.ClientID }, new BankAccountViewModel(result.Value));
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BankAccount>>> GetBankAccounts()
+        public async Task<ActionResult<IEnumerable<BankAccountViewModel>>> GetBankAccounts()
         {
-            return await _bankAccountService.GetAccounts();
+            return (await _bankAccountService.GetAccounts()).Value.Select(b => new BankAccountViewModel(b)).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<BankAccount>> GetBankAccount(int id)
+        public async Task<ActionResult<BankAccountViewModel>> GetBankAccount(int id)
         {
             var result = await _bankAccountService.GetAccount(id);
 
@@ -52,11 +53,11 @@ namespace BankingService.Controllers
                 return new JsonResult(result) { StatusCode = (int)result.StatusCode };
             }
 
-            return Ok(result.Value);
+            return Ok(new BankAccountViewModel(result.Value));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBankAccount(int id, EditBankAccountDto updatedAccount)
+        public async Task<IActionResult> PutBankAccount(int id, BankAccountDTO updatedAccount)
         {
             var result = await _bankAccountService.UpdateAccount(id, updatedAccount);
 

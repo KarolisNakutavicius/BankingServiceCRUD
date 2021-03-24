@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -49,8 +50,8 @@ namespace BankingService.Functional
         {
             Value = value;
         }
-         
-        [JsonIgnore]
+
+        [IgnoreDataMember]
         public T Value { get; private set; }
     }
 

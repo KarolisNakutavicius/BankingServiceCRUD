@@ -11,10 +11,10 @@ namespace BankingService.Services.Contracts
 {
     public interface IBankAccountService
     {
-        Task<Result> CreateAccount(BankAccount newAccount);
+        Task<Result<BankAccount>> CreateAccount(BankAccountDTO newAccount);
         Task<ActionResult<IEnumerable<BankAccount>>> GetAccounts();
         Task<Result<BankAccount>> GetAccount(int id);
-        Task<Result> UpdateAccount(int id, EditBankAccountDto newAccount);
+        Task<Result> UpdateAccount(int id, BankAccountDTO newAccount);
         Task<Result> DeleteAccount(int id);
 
     }
